@@ -1,1 +1,1 @@
-# MAZE GAM
+# MAZE GAME
