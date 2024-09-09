@@ -12,6 +12,7 @@ using UnityEngine;
 public class MazeModule : MonoBehaviour
 {
     [SerializeField] GameObject DefaultPrefab;
+    [SerializeField] GameObject ObjectPrefab;
     public GameObject[,] Tiles;
     MazeHandler Control;
     private int GEN_WIDTH;

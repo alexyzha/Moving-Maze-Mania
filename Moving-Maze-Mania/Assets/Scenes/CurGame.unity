@@ -273,6 +273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DefaultPrefab: {fileID: 9059005402185034162, guid: 8baa9cfbd58604b4db5a1f9b6d7495df, type: 3}
+  ObjectPrefab: {fileID: 5021604794593347245, guid: 5e73b517b50fa42e9b371b205d405aa3, type: 3}
 --- !u!1 &1608618926
 GameObject:
   m_ObjectHideFlags: 0
