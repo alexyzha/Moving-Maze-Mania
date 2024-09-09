@@ -34,7 +34,7 @@ public class MazeModule : MonoBehaviour
         SHIFT_COUNT = PlayerPrefs.GetInt("Shfits");
         DO_COINS = PlayerPrefs.GetInt("Coins");
         SEED = PlayerPrefs.GetInt("Seed");
-        Tiles = new GameObject[MAZE_WIDTH,MAZE_WIDTH];
+        Tiles = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
         // instantiate all maze tile game objects
         for(int i = 0; i < MAZE_WIDTH; ++i)
         {
