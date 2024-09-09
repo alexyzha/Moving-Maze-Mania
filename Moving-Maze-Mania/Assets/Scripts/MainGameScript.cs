@@ -11,6 +11,7 @@ public class MainGameScript : MonoBehaviour
         Debug.Log(PlayerPrefs.GetInt("Height"));
         Debug.Log(PlayerPrefs.GetInt("Shifts"));
         Debug.Log(PlayerPrefs.GetInt("Coins"));
+        Debug.Log(PlayerPrefs.GetInt("Seed"));
     }
 
     // Update is called once per frame
