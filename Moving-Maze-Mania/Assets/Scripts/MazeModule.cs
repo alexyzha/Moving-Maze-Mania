@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Threading;
 using System.Xml.Serialization;
 using Unity.Collections;
@@ -13,6 +14,7 @@ public class MazeModule : MonoBehaviour
 {
     [SerializeField] GameObject DefaultPrefab;
     [SerializeField] GameObject ObjectPrefab;
+    private GameObject Player;
     public GameObject[,] Tiles;
     MazeHandler Control;
     private int GEN_WIDTH;
@@ -23,7 +25,7 @@ public class MazeModule : MonoBehaviour
     private int SHIFT_COUNT;
     private int DO_COINS;
     private int SEED;
-
+    // ^wasd by index
 
     // Start is called before the first frame update
     void Start()
@@ -32,7 +34,7 @@ public class MazeModule : MonoBehaviour
         GEN_HEIGHT = PlayerPrefs.GetInt("Height");
         MAZE_WIDTH = GEN_WIDTH*2+1;
         MAZE_HEIGHT = GEN_HEIGHT*2+1;
-        SHIFT_COUNT = PlayerPrefs.GetInt("Shfits");
+        SHIFT_COUNT = PlayerPrefs.GetInt("Shifts");
         DO_COINS = PlayerPrefs.GetInt("Coins");
         SEED = PlayerPrefs.GetInt("Seed");
         Tiles = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
@@ -45,17 +47,38 @@ public class MazeModule : MonoBehaviour
                 Tiles[i,j] = Instantiate(DefaultPrefab,Position,Quaternion.identity);
             }
         }
-        Control = new(GEN_WIDTH,GEN_HEIGHT,SEED,Tiles);
         // change camera position and size
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
         Camera.main.orthographicSize = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(GEN_HEIGHT,GEN_WIDTH)/50.0f);
+
+        // change this later
+        Vector3 PlayerPos = new(2.08f,2.08f,0);
+
+        Player = Instantiate(ObjectPrefab,PlayerPos,Quaternion.identity);
+
+        Control = new(GEN_WIDTH,GEN_HEIGHT,SEED,Tiles,Player);
     }
 
     // Update is called once per frame
     void Update()
     {
-        Control.Shift();
+        if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            Control.MovePlayer(0,SHIFT_COUNT);
+        }
+        else if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            Control.MovePlayer(1,SHIFT_COUNT);
+        }
+        else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            Control.MovePlayer(2,SHIFT_COUNT);
+        }
+        else if(Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            Control.MovePlayer(3,SHIFT_COUNT);
+        }
     }
 }
 
@@ -78,6 +101,7 @@ public class MazeHandler
 {
     public byte[,] maze_frame;
     public GameObject[,] Tiles;
+    public GameObject Player;
     private readonly System.Random rand;
     private readonly int x;
     private readonly int y;
@@ -85,10 +109,13 @@ public class MazeHandler
     private readonly int boundary_y;
     private int origin_x;
     private int origin_y;
+    private int player_x;
+    private int player_y;
     private readonly string WALL_LOC = "Tiles/Wall";
     private readonly string FLOOR_LOC = "Tiles/Floor";
     private const byte EMPTY = (byte)0x00;
     private const byte OBJECT = (byte)0x10;
+    private const byte NOT_OBJECT = (byte)0xef;
     private const byte IN_WALK = (byte)0x20;
     private const byte IN_MAZE = (byte)0x40;
     private const byte WALL = (byte)0x80;
@@ -102,50 +129,58 @@ public class MazeHandler
     private const byte POS_X = (byte)0x08;
     private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};
     private static readonly Pair[] DIRECTIONS = new Pair[4] {new(0,-2),new(-2,0),new(0,2),new(2,0)};
+    private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
+    private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
 
-    public MazeHandler(int x_, int y_, int seed_, GameObject[,] Tiles_)
+    public MazeHandler(int x_, int y_, int seed_, GameObject[,] Tiles_, GameObject Player_)
     {
         Tiles = Tiles_;
+        Player = Player_;
         maze_frame = new byte[x_*2+1,y_*2+1];
         rand = new System.Random(seed_);
         x = x_;
         y = y_;
         boundary_x = x*2+1;
         boundary_y = y*2+1;
+        player_x = 1;
+        player_y = 1;
         GenerateMaze();
         InitTree();
         SetTiles();
     }
 
-    public void Shift()
+    public void Shift(int count)
     {
-        int next_dir = GetNextIndex(origin_x,origin_y);
-        Pair next = new(origin_x+DIRECTIONS[next_dir].x,origin_y+DIRECTIONS[next_dir].y);
-        // since next is becoming the new origin, remove its parents first
-        // if unable to be removed, end of iteration. return
-        for(int i = 0; i < 4; ++i) {
-            if((maze_frame[next.x,next.y] & (1<<i)) > 0)
-            {
-                // check if removing parent affects objects in middle
-                Pair next_mid = GetMid(next.x,next.y,next.x+DIRECTIONS[i].x,next.y+DIRECTIONS[i].y);
-                if((maze_frame[next_mid.x,next_mid.y] & OBJECT) > 0)
+        for(int c = 0; c < count; ++c)
+        {
+            int next_dir = GetNextIndex(origin_x,origin_y);
+            Pair next = new(origin_x+DIRECTIONS[next_dir].x,origin_y+DIRECTIONS[next_dir].y);
+            // since next is becoming the new origin, remove its parents first
+            // if unable to be removed, end of iteration. return
+            for(int i = 0; i < 4; ++i) {
+                if((maze_frame[next.x,next.y] & (1<<i)) > 0)
                 {
-                    return;
+                    // check if removing parent affects objects in middle
+                    Pair next_mid = GetMid(next.x,next.y,next.x+DIRECTIONS[i].x,next.y+DIRECTIONS[i].y);
+                    if((maze_frame[next_mid.x,next_mid.y] & OBJECT) > 0)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        maze_frame[next_mid.x,next_mid.y] = WALL;
+                        SetRendererSprite(next_mid.x,next_mid.y,WALL_LOC);
+                        maze_frame[next.x,next.y] &= (byte)(PARENTS ^ DIR_MASK[i]);
+                    }
                 }
-                else
-                {
-                    maze_frame[next_mid.x,next_mid.y] = WALL;
-                    SetRendererSprite(next_mid.x,next_mid.y,WALL_LOC);
-                    maze_frame[next.x,next.y] &= (byte)(PARENTS ^ DIR_MASK[i]);
-                }
-            }
-        }   
-        Pair mid = GetMid(next,origin_x,origin_y);
-        maze_frame[mid.x,mid.y] = EMPTY;
-        SetRendererSprite(mid.x,mid.y,FLOOR_LOC);
-        maze_frame[origin_x,origin_y] |= DIR_MASK[next_dir];
-        origin_x = next.x;
-        origin_y = next.y;
+            }   
+            Pair mid = GetMid(next,origin_x,origin_y);
+            maze_frame[mid.x,mid.y] = EMPTY;
+            SetRendererSprite(mid.x,mid.y,FLOOR_LOC);
+            maze_frame[origin_x,origin_y] |= DIR_MASK[next_dir];
+            origin_x = next.x;
+            origin_y = next.y;
+        }
     }
 
     private void InitTree()
@@ -337,6 +372,23 @@ public class MazeHandler
     {
         SpriteRenderer CurrentRenderer = Tiles[x,y].GetComponent<SpriteRenderer>();
         CurrentRenderer.sprite = Resources.Load<Sprite>(path);
+    }
+
+    public bool MovePlayer(int dir, int SHIFT_COUNT)
+    {
+        int nx = player_x+PLAYER_DIR[dir].x;
+        int ny = player_y+PLAYER_DIR[dir].y;
+        if(!IsValid(nx,ny) || maze_frame[nx,ny] == WALL)
+        {
+            return false;
+        }
+        maze_frame[player_x,player_y] &= NOT_OBJECT;
+        player_x = nx;
+        player_y = ny;
+        maze_frame[player_x,player_y] |= OBJECT;
+        Player.transform.position += VEC_DIR[dir];
+        Shift(SHIFT_COUNT);
+        return true;
     }
 
 }
