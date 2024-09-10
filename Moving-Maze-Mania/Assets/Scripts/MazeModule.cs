@@ -8,26 +8,19 @@ using Unity.Collections;
 using Unity.Mathematics;
 using Unity.PlasticSCM.Editor.WebApi;
 using Unity.VisualScripting;
+using UnityEditor;
+using UnityEditor.U2D.Animation;
 using UnityEngine;
 
 public class MazeModule : MonoBehaviour
 {
+    /************************** ALL FIELDS BELOW **************************/
+
     [SerializeField] GameObject DefaultPrefab;
     [SerializeField] GameObject ObjectPrefab;
-    private GameObject Player;
-    public GameObject[,] Tiles;
-    MazeHandler Control;
-    private int GEN_WIDTH;
-    private int GEN_HEIGHT;
-    private int MAZE_WIDTH;
-    private int MAZE_HEIGHT;
+    
+    /************************** ALL MAIN BELOW **************************/
 
-    private int SHIFT_COUNT;
-    private int DO_COINS;
-    private int SEED;
-    // ^wasd by index
-
-    // Start is called before the first frame update
     void Start()
     {
         GEN_WIDTH = PlayerPrefs.GetInt("Width");
@@ -38,6 +31,8 @@ public class MazeModule : MonoBehaviour
         DO_COINS = PlayerPrefs.GetInt("Coins");
         SEED = PlayerPrefs.GetInt("Seed");
         Tiles = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
+        NPObjects = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
+        NPObjectData = new char[MAZE_WIDTH,MAZE_HEIGHT];
         // instantiate all maze tile game objects
         for(int i = 0; i < MAZE_WIDTH; ++i)
         {
@@ -51,16 +46,17 @@ public class MazeModule : MonoBehaviour
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
         Camera.main.orthographicSize = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(GEN_HEIGHT,GEN_WIDTH)/50.0f);
-
-        // change this later
+        if(DO_COINS > 0)
+        {
+            SetCoins();
+        }
+        // default position to be changed in handler init
         Vector3 PlayerPos = new(2.08f,2.08f,0);
-
         Player = Instantiate(ObjectPrefab,PlayerPos,Quaternion.identity);
-
-        Control = new(GEN_WIDTH,GEN_HEIGHT,SEED,Tiles,Player);
+        // init handler
+        Control = new(GEN_WIDTH,GEN_HEIGHT,SEED,Tiles,Player,NPObjectData,NPObjects);
     }
 
-    // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
@@ -80,15 +76,59 @@ public class MazeModule : MonoBehaviour
             Control.MovePlayer(3,SHIFT_COUNT);
         }
     }
+
+    /************************** ALL UTIL BELOW **************************/
+    
+    private void SetCoins()
+    {
+        System.Random rand = new(SEED);
+        int count = Math.Min(MAZE_WIDTH,MAZE_HEIGHT);
+        for(int i = 0; i < count; ++i)
+        {
+            int nx = rand.Next(0,GEN_WIDTH)*2+1;
+            int ny = rand.Next(0,GEN_HEIGHT)*2+1;
+            while(NPObjectData[nx,ny] != 0) 
+            {
+                nx = rand.Next(0,GEN_WIDTH)*2+1;
+                ny = rand.Next(0,GEN_HEIGHT)*2+1;
+            }
+            NPObjectData[nx,ny] = IS_COIN;
+            Vector3 Position = new(nx*2.08f,ny*2.08f,0);
+            NPObjects[nx,ny] = Instantiate(ObjectPrefab,Position,Quaternion.identity);
+            SpriteRenderer CurrentRenderer = NPObjects[nx,ny].GetComponent<SpriteRenderer>();
+            CurrentRenderer.sprite = Resources.Load<Sprite>(COIN_0_LOC);
+        }
+    }
+
+    /************************** ALL UTIL BELOW **************************/
+
+    public GameObject Player;
+    public GameObject[,] Tiles;
+    public GameObject[,] NPObjects;
+    public char[,] NPObjectData;
+    MazeHandler Control;
+    private int GEN_WIDTH;
+    private int GEN_HEIGHT;
+    private int MAZE_WIDTH;
+    private int MAZE_HEIGHT;
+
+    private int SHIFT_COUNT;
+    private int DO_COINS;
+    private int SEED;
+    private const char IS_COIN = (char)0x0001;
+    private readonly string COIN_0_LOC = "Items/Coin/0";
 }
 
-public class Pair {
-    public Pair() {
+public class Pair
+{
+    public Pair()
+    {
         this.x = 0;
         this.y = 0;
     }
 
-    public Pair(int x, int y) {
+    public Pair(int x, int y)
+    {
         this.x = x;
         this.y = y;
     }
@@ -99,43 +139,14 @@ public class Pair {
 
 public class MazeHandler
 {
-    public byte[,] maze_frame;
-    public GameObject[,] Tiles;
-    public GameObject Player;
-    private readonly System.Random rand;
-    private readonly int x;
-    private readonly int y;
-    private readonly int boundary_x;
-    private readonly int boundary_y;
-    private int origin_x;
-    private int origin_y;
-    private int player_x;
-    private int player_y;
-    private readonly string WALL_LOC = "Tiles/Wall";
-    private readonly string FLOOR_LOC = "Tiles/Floor";
-    private const byte EMPTY = (byte)0x00;
-    private const byte OBJECT = (byte)0x10;
-    private const byte NOT_OBJECT = (byte)0xef;
-    private const byte IN_WALK = (byte)0x20;
-    private const byte IN_MAZE = (byte)0x40;
-    private const byte WALL = (byte)0x80;
-    
-    // POINTER TO PARENT, BELOW ARE BITMASKS
+    /************************** ALL MAIN BELOW **************************/
 
-    private const byte PARENTS = (byte)0x0f;
-    private const byte NEG_Y = (byte)0x01;
-    private const byte NEG_X = (byte)0x02;
-    private const byte POS_Y = (byte)0x04;
-    private const byte POS_X = (byte)0x08;
-    private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};
-    private static readonly Pair[] DIRECTIONS = new Pair[4] {new(0,-2),new(-2,0),new(0,2),new(2,0)};
-    private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
-    private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
-
-    public MazeHandler(int x_, int y_, int seed_, GameObject[,] Tiles_, GameObject Player_)
+    public MazeHandler(int x_, int y_, int seed_, GameObject[,] Tiles_, GameObject Player_, char[,] NPObjectData_, GameObject[,] NPObjects_)
     {
         Tiles = Tiles_;
         Player = Player_;
+        NPObjectData = NPObjectData_;
+        NPObjects = NPObjects_;
         maze_frame = new byte[x_*2+1,y_*2+1];
         rand = new System.Random(seed_);
         x = x_;
@@ -144,6 +155,7 @@ public class MazeHandler
         boundary_y = y*2+1;
         player_x = 1;
         player_y = 1;
+        coins_picked = 0;
         GenerateMaze();
         InitTree();
         SetTiles();
@@ -293,21 +305,31 @@ public class MazeHandler
         }
     }
     
+    public bool MovePlayer(int dir, int SHIFT_COUNT)
+    {
+        int nx = player_x+PLAYER_DIR[dir].x;
+        int ny = player_y+PLAYER_DIR[dir].y;
+        if(!IsValid(nx,ny) || maze_frame[nx,ny] == WALL)
+        {
+            return false;
+        }
+        maze_frame[player_x,player_y] &= NOT_OBJECT;
+        player_x = nx;
+        player_y = ny;
+        maze_frame[player_x,player_y] |= OBJECT;
+        Player.transform.position += VEC_DIR[dir];
+        if(NPObjectData[player_x,player_y] == IS_COIN)
+        {
+            ++coins_picked;
+            GameObject.Destroy(NPObjects[player_x,player_y]);
+            NPObjectData[player_x,player_y] = OBJ_EMPTY;
+        }
+        Shift(SHIFT_COUNT);
+        return true;
+    }
+    
     /************************** ALL UTIL BELOW **************************/
     
-    public void PrintMaze()
-    {
-        Debug.Log("\x1B[32mMaze:\n");
-        for(int i = 0; i < boundary_x; ++i)
-        {
-            for(int j = 0; j < boundary_y; ++j)
-            {
-                Debug.Log(maze_frame[i,j] == 0x80 ? "0 " : "  ");
-            }
-            Debug.Log("\n");
-        }
-    }
-
     private Pair GetNext(int current_x, int current_y)
     {
         Pair next = new(-1,-1);
@@ -374,21 +396,46 @@ public class MazeHandler
         CurrentRenderer.sprite = Resources.Load<Sprite>(path);
     }
 
-    public bool MovePlayer(int dir, int SHIFT_COUNT)
-    {
-        int nx = player_x+PLAYER_DIR[dir].x;
-        int ny = player_y+PLAYER_DIR[dir].y;
-        if(!IsValid(nx,ny) || maze_frame[nx,ny] == WALL)
-        {
-            return false;
-        }
-        maze_frame[player_x,player_y] &= NOT_OBJECT;
-        player_x = nx;
-        player_y = ny;
-        maze_frame[player_x,player_y] |= OBJECT;
-        Player.transform.position += VEC_DIR[dir];
-        Shift(SHIFT_COUNT);
-        return true;
-    }
+    /************************** ALL VARS BELOW **************************/
+
+    public byte[,] maze_frame;
+    public GameObject[,] Tiles;
+    public char[,] NPObjectData;
+    public GameObject[,] NPObjects;
+    public GameObject Player;
+    private readonly System.Random rand;
+    private readonly int x;
+    private readonly int y;
+    private readonly int boundary_x;
+    private readonly int boundary_y;
+    private int origin_x;
+    private int origin_y;
+    private int player_x;
+    private int player_y;
+    private int coins_picked;
+    private readonly string WALL_LOC = "Tiles/Wall";
+    private readonly string FLOOR_LOC = "Tiles/Floor";
+    private const byte EMPTY = 0x00;
+    private const byte OBJECT = 0x10;
+    private const byte NOT_OBJECT = 0xef;
+    private const byte IN_WALK = 0x20;
+    private const byte IN_MAZE = 0x40;
+    private const byte WALL = 0x80;
+    
+    // POINTER TO PARENT, BELOW ARE BITMASKS
+
+    private const byte PARENTS = 0x0f;
+    private const byte NEG_Y = 0x01;
+    private const byte NEG_X = 0x02;
+    private const byte POS_Y = 0x04;
+    private const byte POS_X = 0x08;
+    private const char IS_COIN = (char)0x0001;
+    private const char OBJ_EMPTY = (char)0x0000;
+    private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};
+    private static readonly Pair[] DIRECTIONS = new Pair[4] {new(0,-2),new(-2,0),new(0,2),new(2,0)};
+    private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
+    private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
 
 }
+
+
