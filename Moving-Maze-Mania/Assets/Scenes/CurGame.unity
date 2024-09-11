@@ -274,7 +274,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultPrefab: {fileID: 9059005402185034162, guid: 8baa9cfbd58604b4db5a1f9b6d7495df, type: 3}
   ObjectPrefab: {fileID: 5021604794593347245, guid: 5e73b517b50fa42e9b371b205d405aa3, type: 3}
-  Player: {fileID: 0}
 --- !u!1 &412593241
 GameObject:
   m_ObjectHideFlags: 0
@@ -288,7 +287,7 @@ GameObject:
   - component: {fileID: 412593244}
   - component: {fileID: 412593243}
   m_Layer: 5
-  m_Name: toggle camera
+  m_Name: Toggle Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -311,8 +310,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -274, y: -184.25}
-  m_SizeDelta: {x: 160, y: 30}
+  m_AnchoredPosition: {x: -397.5, y: 209.5}
+  m_SizeDelta: {x: 40, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &412593243
 MonoBehaviour:
@@ -360,7 +359,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 113562917}
         m_TargetAssemblyTypeName: MazeModule, Assembly-CSharp
-        m_MethodName: toggleCamera
+        m_MethodName: ToggleCamera
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
