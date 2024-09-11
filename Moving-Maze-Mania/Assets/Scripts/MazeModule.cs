@@ -46,6 +46,7 @@ public class MazeModule : MonoBehaviour
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
         Camera.main.orthographicSize = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(GEN_HEIGHT,GEN_WIDTH)/50.0f);
+        Camera.main.orthographicSize /= ZOOM_FACTOR;
         if(DO_COINS > 0)
         {
             SetCoins();
@@ -75,6 +76,13 @@ public class MazeModule : MonoBehaviour
         {
             Control.MovePlayer(3,SHIFT_COUNT);
         }
+        if (cameraFollow)
+        {
+            Vector3 cameraPos = Camera.main.gameObject.transform.position;
+            cameraPos += (Player.transform.position - Camera.main.gameObject.transform.position) * Time.deltaTime * FOLLOW_SPEED;
+            cameraPos.z = -10;
+            Camera.main.gameObject.transform.position = cameraPos;
+        }
     }
 
     /************************** ALL UTIL BELOW **************************/
@@ -100,6 +108,24 @@ public class MazeModule : MonoBehaviour
         }
     }
 
+    public void toggleCamera() 
+    {
+        if (cameraFollow) 
+        {
+            cameraFollow = false;
+            Camera.main.gameObject.transform.position = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
+            Camera.main.orthographicSize *= ZOOM_FACTOR;
+        } 
+        else 
+        {
+            cameraFollow = true;
+            Camera.main.orthographicSize /= ZOOM_FACTOR;
+            Vector3 cameraPos = Player.transform.position;
+            cameraPos.z = -10;
+            Camera.main.gameObject.transform.position = cameraPos;
+        }
+    }
+
     /************************** ALL UTIL BELOW **************************/
 
     public GameObject Player;
@@ -111,12 +137,15 @@ public class MazeModule : MonoBehaviour
     private int GEN_HEIGHT;
     private int MAZE_WIDTH;
     private int MAZE_HEIGHT;
+    private int ZOOM_FACTOR = 4;
+    private float FOLLOW_SPEED = 2;
 
     private int SHIFT_COUNT;
     private int DO_COINS;
     private int SEED;
     private const char IS_COIN = (char)0x0001;
     private readonly string COIN_0_LOC = "Items/Coin/0";
+    private bool cameraFollow = true;
 }
 
 public class Pair
