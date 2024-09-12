@@ -274,6 +274,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DefaultPrefab: {fileID: 9059005402185034162, guid: 8baa9cfbd58604b4db5a1f9b6d7495df, type: 3}
   ObjectPrefab: {fileID: 5021604794593347245, guid: 5e73b517b50fa42e9b371b205d405aa3, type: 3}
+  OPPrefab: {fileID: 2940150827135291707, guid: f0ad7769e7bdf462898c25c8406a729d, type: 3}
 --- !u!1 &412593241
 GameObject:
   m_ObjectHideFlags: 0
@@ -661,8 +662,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 20
-  m_fontSizeBase: 20
+  m_fontSize: 10
+  m_fontSizeBase: 10
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using System.Drawing;
 using System.Threading;
 using System.Xml.Serialization;
 using Unity.Collections;
@@ -37,8 +38,12 @@ public class MazeModule : MonoBehaviour
 
     [SerializeField] GameObject DefaultPrefab;
     [SerializeField] GameObject ObjectPrefab;
+    [SerializeField] GameObject OPPrefab;
     
     /************************** ALL GAME LOOP BELOW **************************/
+
+    OP testopclass;
+    GameObject OPObj;
 
     void Start()
     {
@@ -83,6 +88,11 @@ public class MazeModule : MonoBehaviour
             SetCoins();
         }
 
+        
+        OPObj = Instantiate(OPPrefab,PlayerPos,Quaternion.identity);
+        testopclass = new OP(MazeFrame,1,1,COIN_0_LOC,OPObj);
+
+
         // change camera position and size        
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
@@ -118,6 +128,12 @@ public class MazeModule : MonoBehaviour
             cameraPos += (Player.transform.position - Camera.main.gameObject.transform.position) * Time.deltaTime * FOLLOW_SPEED;
             cameraPos.z = -10;
             Camera.main.gameObject.transform.position = cameraPos;
+        }
+        curr_cooldown += Time.deltaTime;
+        if (curr_cooldown > BOT_COOLDOWN) 
+        {
+            curr_cooldown = 0;
+            testopclass.MoveTowards(19,19);
         }
     }
 
@@ -414,7 +430,9 @@ public class MazeModule : MonoBehaviour
     private int player_y;
     private int DO_COINS;
     private int coins_picked;
+    private float curr_cooldown = 0.0f;
     private int SHIFT_COUNT;
+    private float BOT_COOLDOWN = 1.0f;
     private bool CameraFollow = true;
     private int ZOOM_FACTOR = 3;
     private float FOLLOW_SPEED = 2;
@@ -442,4 +460,90 @@ public class MazeModule : MonoBehaviour
     private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
     private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
 
+}
+
+public class OP {
+
+    /************************** CONSTRUCTOR **************************/
+
+    public OP(byte[,] MF, int x_, int y_, string skin, GameObject OP) {
+        MazeFrame = MF;
+        x = x_;
+        y = y_;
+        MAZE_WIDTH = MazeFrame.GetLength(0);
+        MAZE_HEIGHT = MazeFrame.GetLength(1);
+        SKIN = skin;
+        MazeFrame[x,y] |= OBJECT;
+        Vector3 SpawnPos = new(x*2.08f,y*2.08f,0);
+        OPObject = OP;
+    }
+
+    /************************** ALL FUNCTIONS BELOW **************************/
+
+    public void MoveTowards(int tx, int ty) {
+        bool[,] vis = new bool[MAZE_WIDTH,MAZE_HEIGHT];
+        vis[x,y] = true;
+        for(int i = 0; i < 4; ++i) {
+            int nx = x+OP_DIR[i].x;
+            int ny = y+OP_DIR[i].y;
+            if(DFS(tx,ty,nx,ny,vis))
+            {
+                MazeFrame[x,y] &= NOT_OBJECT;
+                x = nx;
+                y = ny;
+                MazeFrame[x,y] |= OBJECT;
+                OPObject.transform.position += VEC_DIR[i];
+                
+                Debug.Log($"{nx} {ny}\n");
+                
+                break;
+            }
+        }
+        Debug.Log("\n");
+    }
+
+    private bool DFS(int tx, int ty, int cx, int cy, bool[,] vis) {
+        if(!IsValid(cx,cy) || vis[cx,cy] || MazeFrame[cx,cy] == WALL)
+        {
+            return false;
+        }
+        if(cx == tx && cy == ty)
+        {
+            return true;
+        }
+        vis[cx,cy] = true;
+        bool ret = false;
+        for(int i = 0; i < 4; ++i)
+        {
+            int nx = cx+OP_DIR[i].x;
+            int ny = cy+OP_DIR[i].y;
+            ret = ret || DFS(tx,ty,nx,ny,vis);
+        }
+        return ret;
+    }
+
+    /************************** ALL UTIL BELOW **************************/
+
+    private bool IsValid(int x, int y)
+    {
+        return (x > 0) && 
+               (y > 0) &&
+               (x < MAZE_WIDTH-1) &&
+               (y < MAZE_HEIGHT-1);
+    }
+
+    /************************** ALL VARS BELOW **************************/
+
+    private byte[,] MazeFrame;
+    private GameObject OPObject;
+    private int x;
+    private int y;
+    private int MAZE_WIDTH;
+    private int MAZE_HEIGHT;
+    private const byte WALL = 0x80;
+    private const byte OBJECT = 0x10;
+    private const byte NOT_OBJECT = 0xef;
+    private readonly string SKIN;
+    private static readonly Pair[] OP_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
+    private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
 }
