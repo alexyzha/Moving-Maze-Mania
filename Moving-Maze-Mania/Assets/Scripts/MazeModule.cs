@@ -34,6 +34,7 @@ public class Pair
 
 public class MazeModule : MonoBehaviour
 {
+
     /************************** ALL FIELDS BELOW **************************/
 
     [SerializeField] GameObject DefaultPrefab;
@@ -47,9 +48,10 @@ public class MazeModule : MonoBehaviour
 
     void Start()
     {
-        // rand and seed NEED to be init first
+        // RNG and seeding need to be init first
         SEED = PlayerPrefs.GetInt("Seed");
-        rand = new System.Random(SEED);
+        rand = SEED > 0 ? new System.Random(SEED) : new System.Random();
+        // Maze node and actual x/y values
         x = PlayerPrefs.GetInt("Width");
         y = PlayerPrefs.GetInt("Height");
         MAZE_WIDTH = x*2+1;
@@ -59,41 +61,39 @@ public class MazeModule : MonoBehaviour
         player_x = 1;
         player_y = 1;
         // ^^^^^^
-        
-        // NEED GOOD ORIGIN GENERATION ALGO
-        origin_x = rand.Next(0,x)*2+1;
-        origin_y = rand.Next(0,y)*2+1;
-        // ^^^^^^
+
+        // Origin for shifts spawns around the middle of the maze
+        origin_x = rand.Next(x/4,x*3/4)*2+1;
+        origin_y = rand.Next(y/4,y*3/4)*2+1;
+        // Setting up variables for coins and shifts
         DO_COINS = PlayerPrefs.GetInt("Coins");
         coins_picked = 0;
         SHIFT_COUNT = PlayerPrefs.GetInt("Shifts");
-        // generate matricies
+        // Get bot speed
+        BOT_SPEED = PlayerPrefs.GetFloat("BotSpeed");
+        // Init all matricies
         MazeFrame = new byte[MAZE_WIDTH,MAZE_HEIGHT];
         Tiles = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
         NPObjects = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
         NPObjectData = new char[MAZE_WIDTH,MAZE_HEIGHT];
-        
-        // generate maze
+        // Generate maze and set tiles, maze data stored in MazeFrame
         GenerateMaze();
         InitTree();
         SetTiles();
-
-        // default position to be changed in handler init
+        // Spawn player sprite
         Vector3 PlayerPos = new(player_x*2.08f,player_y*2.08f,0);
         Player = Instantiate(ObjectPrefab,PlayerPos,Quaternion.identity);
-
-        // set coins
+        // If coins are allowed, set coins
         if(DO_COINS > 0)
         {
             SetCoins();
         }
 
-        
+        // TESTING BOTS        
         OPObj = Instantiate(OPPrefab,PlayerPos,Quaternion.identity);
         testopclass = new OP(MazeFrame,1,1,COIN_0_LOC,OPObj);
 
-
-        // change camera position and size        
+        // Init camera as follow
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
         Camera.main.orthographicSize = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(y,x)/50.0f);
@@ -102,6 +102,7 @@ public class MazeModule : MonoBehaviour
 
     void Update()
     {
+        // All player movement controls
         if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             MovePlayer(0);
@@ -118,10 +119,12 @@ public class MazeModule : MonoBehaviour
         {
             MovePlayer(3);
         }
+        // Swap camera perspective hotkey
         if(Input.GetKeyDown(KeyCode.R))
         {
             ToggleCamera();
         }
+        // Move camera if set to follow
         if (CameraFollow)
         {
             Vector3 cameraPos = Camera.main.gameObject.transform.position;
@@ -129,7 +132,9 @@ public class MazeModule : MonoBehaviour
             cameraPos.z = -10;
             Camera.main.gameObject.transform.position = cameraPos;
         }
-        curr_cooldown += Time.deltaTime;
+        
+        // Move bots (TESTING)
+        curr_cooldown += Time.deltaTime*BOT_SPEED;
         if (curr_cooldown > BOT_COOLDOWN) 
         {
             curr_cooldown = 0;
@@ -159,24 +164,32 @@ public class MazeModule : MonoBehaviour
 
     private bool MovePlayer(int dir)
     {
+        // Check direction validity (WALL + OOB)
         int nx = player_x+PLAYER_DIR[dir].x;
         int ny = player_y+PLAYER_DIR[dir].y;
         if(!IsValid(nx,ny) || MazeFrame[nx,ny] == WALL)
         {
             return false;
         }
+        // Remove object flag from current tile
         MazeFrame[player_x,player_y] &= NOT_OBJECT;
         player_x = nx;
         player_y = ny;
+        // Set object flag in new tile
         MazeFrame[player_x,player_y] |= OBJECT;
         Player.transform.position += VEC_DIR[dir];
+        // Collecting coins
         if(NPObjectData[player_x,player_y] == IS_COIN)
         {
             ++coins_picked;
             GameObject.Destroy(NPObjects[player_x,player_y]);
             NPObjectData[player_x,player_y] = OBJ_EMPTY;
         }
-        Shift();
+        // Shift after every move
+        for(int c = 0; c < SHIFT_COUNT; ++c)
+        {
+            Shift();
+        }
         return true;
     }
 
@@ -184,36 +197,36 @@ public class MazeModule : MonoBehaviour
     
     private void Shift()
     {
-        for(int c = 0; c < SHIFT_COUNT; ++c)
-        {
-            int next_dir = GetNextIndex(origin_x,origin_y);
-            Pair next = new(origin_x+DIRECTIONS[next_dir].x,origin_y+DIRECTIONS[next_dir].y);
-            // since next is becoming the new origin, remove its parents first
-            // if unable to be removed, end of iteration. return
-            for(int i = 0; i < 4; ++i) {
-                if((MazeFrame[next.x,next.y] & (1<<i)) > 0)
+        int next_dir = GetNextIndex(origin_x,origin_y);
+        Pair next = new(origin_x+DIRECTIONS[next_dir].x,origin_y+DIRECTIONS[next_dir].y);
+        // Since next is becoming the new origin, remove its parents first
+        // If unable to be removed, end of iteration. Continue to next shift (return)
+        for(int i = 0; i < 4; ++i) {
+            if((MazeFrame[next.x,next.y] & (1<<i)) > 0)
+            {
+                // Check if removing parent affects objects in middle
+                Pair next_mid = GetMid(next.x,next.y,next.x+DIRECTIONS[i].x,next.y+DIRECTIONS[i].y);
+                if((MazeFrame[next_mid.x,next_mid.y] & OBJECT) > 0)
                 {
-                    // check if removing parent affects objects in middle
-                    Pair next_mid = GetMid(next.x,next.y,next.x+DIRECTIONS[i].x,next.y+DIRECTIONS[i].y);
-                    if((MazeFrame[next_mid.x,next_mid.y] & OBJECT) > 0)
-                    {
-                        return;
-                    }
-                    else
-                    {
-                        MazeFrame[next_mid.x,next_mid.y] = WALL;
-                        SetRendererSprite(next_mid.x,next_mid.y,WALL_LOC);
-                        MazeFrame[next.x,next.y] &= (byte)(PARENTS ^ DIR_MASK[i]);
-                    }
+                    return;
                 }
-            }   
-            Pair mid = GetMid(next,origin_x,origin_y);
-            MazeFrame[mid.x,mid.y] = EMPTY;
-            SetRendererSprite(mid.x,mid.y,FLOOR_LOC);
-            MazeFrame[origin_x,origin_y] |= DIR_MASK[next_dir];
-            origin_x = next.x;
-            origin_y = next.y;
-        }
+                // If it doesn't, then close off the tile between cur and next with a wall
+                else
+                {
+                    MazeFrame[next_mid.x,next_mid.y] = WALL;
+                    SetRendererSprite(next_mid.x,next_mid.y,WALL_LOC);
+                    MazeFrame[next.x,next.y] &= (byte)(PARENTS ^ DIR_MASK[i]);
+                }
+            }
+        }   
+        // Tile between origin and next is set to empty, as current origin will point to next
+        Pair mid = GetMid(next,origin_x,origin_y);
+        MazeFrame[mid.x,mid.y] = EMPTY;
+        SetRendererSprite(mid.x,mid.y,FLOOR_LOC);
+        // Mask for pointer on current origin, then change origin coords to next
+        MazeFrame[origin_x,origin_y] |= DIR_MASK[next_dir];
+        origin_x = next.x;
+        origin_y = next.y;
     }
     
     private void SetRendererSprite(int x, int y, string path)
@@ -226,6 +239,7 @@ public class MazeModule : MonoBehaviour
 
     private void GenerateMaze()
     {
+        // Init with only nodes empty
         for(int i = 0; i < MAZE_WIDTH; ++i)
         {
             for(int j = 0; j < MAZE_HEIGHT; ++j)
@@ -233,10 +247,12 @@ public class MazeModule : MonoBehaviour
                 MazeFrame[i,j] = (i&j&1) == 1 ? EMPTY : WALL;
             }
         }   
+        // Random starting point
         int starting_x = rand.Next(0,x)*2+1;
         int starting_y = rand.Next(0,y)*2+1;
         int tile_count = x*y-1;
         MazeFrame[starting_x,starting_y] = IN_MAZE;
+        // While nodes are left out:
         while(tile_count > 0)
         {
             tile_count -= RandomWalk();
@@ -245,7 +261,7 @@ public class MazeModule : MonoBehaviour
 
     private int RandomWalk()
     {
-        // init
+        // Init
         Stack<Pair> current_walk = new();
         int current_x = rand.Next(0,x)*2+1;
         int current_y = rand.Next(0,y)*2+1;
@@ -255,7 +271,7 @@ public class MazeModule : MonoBehaviour
             current_y = rand.Next(0,y)*2+1;
         }
         current_walk.Push(new Pair(current_x,current_y));
-        // walk
+        // Walk
         while(MazeFrame[current_x,current_y] != IN_MAZE)
         {
             MazeFrame[current_x,current_y] = IN_WALK;
@@ -275,7 +291,7 @@ public class MazeModule : MonoBehaviour
                 current_walk.Push(new Pair(current_x,current_y));
             }
         }
-        // clean path
+        // Clean path
         int ret = current_walk.Count;
         while(current_walk.Count > 0)
         {
@@ -291,12 +307,13 @@ public class MazeModule : MonoBehaviour
 
     private void InitTree()
     {
-        // bfs to set pointers
+        // BFS to set pointers
         Queue<Pair> q = new();
         q.Enqueue(new Pair(origin_x,origin_y));
         while(q.Count > 0)
         {
             Pair cur = q.Dequeue();
+            // Mask for whether or not tile is seen in BFS
             MazeFrame[cur.x,cur.y] ^= IN_MAZE;
             for(int i = 0; i < 4; ++i)
             {
@@ -307,7 +324,7 @@ public class MazeModule : MonoBehaviour
                 {
                     continue;
                 }
-                // get mask for parent of next
+                // Get mask for parent of next
                 byte parent = DIR_MASK[(i+2)%4];
                 MazeFrame[next_x,next_y] |= parent;
                 q.Enqueue(new Pair(next_x,next_y));
@@ -330,13 +347,12 @@ public class MazeModule : MonoBehaviour
 
     private void SetCoins()
     {
-        System.Random rand = new(SEED);
         int count = Math.Min(MAZE_WIDTH,MAZE_HEIGHT);
         for(int i = 0; i < count; ++i)
         {
             int nx = rand.Next(0,x)*2+1;
             int ny = rand.Next(0,y)*2+1;
-            while(NPObjectData[nx,ny] != 0) 
+            while(NPObjectData[nx,ny] != 0 || (MazeFrame[nx,ny] & OBJECT) > 0) 
             {
                 nx = rand.Next(0,x)*2+1;
                 ny = rand.Next(0,y)*2+1;
@@ -432,6 +448,7 @@ public class MazeModule : MonoBehaviour
     private int coins_picked;
     private float curr_cooldown = 0.0f;
     private int SHIFT_COUNT;
+    private float BOT_SPEED;
     private float BOT_COOLDOWN = 1.0f;
     private bool CameraFollow = true;
     private int ZOOM_FACTOR = 3;
@@ -483,6 +500,7 @@ public class OP {
     public void MoveTowards(int tx, int ty) {
         bool[,] vis = new bool[MAZE_WIDTH,MAZE_HEIGHT];
         vis[x,y] = true;
+        // Find which direction target is in (only 1 dir since tree)
         for(int i = 0; i < 4; ++i) {
             int nx = x+OP_DIR[i].x;
             int ny = y+OP_DIR[i].y;
@@ -492,14 +510,10 @@ public class OP {
                 x = nx;
                 y = ny;
                 MazeFrame[x,y] |= OBJECT;
-                OPObject.transform.position += VEC_DIR[i];
-                
-                Debug.Log($"{nx} {ny}\n");
-                
+                OPObject.transform.position += VEC_DIR[i];    
                 break;
             }
         }
-        Debug.Log("\n");
     }
 
     private bool DFS(int tx, int ty, int cx, int cy, bool[,] vis) {
