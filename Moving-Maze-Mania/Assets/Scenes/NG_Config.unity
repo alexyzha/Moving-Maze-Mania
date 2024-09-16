@@ -491,10 +491,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 301dc39b92f8b4c13888258d477bcfa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  X_Slider: {fileID: 1148602242}
-  Y_Slider: {fileID: 1515755842}
-  Shift_Slider: {fileID: 783413385}
-  Coin_Toggle: {fileID: 1841296717}
+  XSlider: {fileID: 1148602242}
+  YSlider: {fileID: 1515755842}
+  ShiftSlider: {fileID: 783413385}
+  BotSlider: {fileID: 201549076}
+  CoinToggle: {fileID: 1841296717}
   Seed: {fileID: 1088392393}
 --- !u!1 &165706648
 GameObject:
