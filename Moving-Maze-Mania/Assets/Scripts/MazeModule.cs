@@ -99,8 +99,8 @@ public class MazeModule : MonoBehaviour
         // Init camera as follow
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
-        Camera.main.orthographicSize = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(y,x)/50.0f);
-        Camera.main.orthographicSize /= ZOOM_FACTOR;
+        ZoomOut = Math.Max(MAZE_HEIGHT,MAZE_WIDTH)+(7.0f*Math.Max(y,x)/50.0f);
+        Camera.main.orthographicSize = ZOOM_IN;
     }
 
     void Update()
@@ -165,12 +165,12 @@ public class MazeModule : MonoBehaviour
         {
             CameraFollow = false;
             Camera.main.gameObject.transform.position = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
-            Camera.main.orthographicSize *= ZOOM_FACTOR;
+            Camera.main.orthographicSize = ZoomOut;
         } 
         else 
         {
             CameraFollow = true;
-            Camera.main.orthographicSize /= ZOOM_FACTOR;
+            Camera.main.orthographicSize = ZOOM_IN;
             Vector3 cameraPos = Player.transform.position;
             cameraPos.z = -10;
             Camera.main.gameObject.transform.position = cameraPos;
@@ -537,7 +537,8 @@ public class MazeModule : MonoBehaviour
     private float BOT_COOLDOWN = 1.0f;
     private float PLAYER_COOLDOWN = 0.2f;
     private bool CameraFollow = true;
-    private int ZOOM_FACTOR = 3;
+    private float ZoomOut;
+    private float ZOOM_IN = 20;
     private float FOLLOW_SPEED = 2;
 
     /************************** ALL CONST/MASKS BELOW **************************/
