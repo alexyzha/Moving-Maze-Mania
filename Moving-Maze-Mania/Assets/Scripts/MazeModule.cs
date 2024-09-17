@@ -42,6 +42,7 @@ public class MazeModule : MonoBehaviour
     [SerializeField] GameObject ObjectPrefab;
     [SerializeField] GameObject OPPrefab;
     [SerializeField] GameObject EndWindow;
+    [SerializeField] GameObject FailWindow;
     
     /************************** ALL GAME LOOP BELOW **************************/
 
@@ -105,55 +106,61 @@ public class MazeModule : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            player_cooldown = 0;
-        }
+        if (!GameEnded) 
+            {
+            if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                player_cooldown = 0;
+            }
 
-        //move cooldown
-        player_cooldown -= Time.deltaTime;
-        if (player_cooldown <= 0) 
-        {
-            player_cooldown = PLAYER_COOLDOWN;
-            // All player movement controls
-            if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            //move cooldown
+            player_cooldown -= Time.deltaTime;
+            if (player_cooldown <= 0) 
             {
-                MovePlayer(0);
+                player_cooldown = PLAYER_COOLDOWN;
+                // All player movement controls
+                if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+                {
+                    MovePlayer(0);
+                }
+                else if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+                {
+                    MovePlayer(1);
+                }
+                else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+                {
+                    MovePlayer(2);
+                }
+                else if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+                {
+                    MovePlayer(3);
+                }
             }
-            else if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
-            {
-                MovePlayer(1);
-            }
-            else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
-            {
-                MovePlayer(2);
-            }
-            else if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
-            {
-                MovePlayer(3);
-            }
-        }
 
-        // Swap camera perspective hotkey
-        if(Input.GetKeyDown(KeyCode.R))
-        {
-            ToggleCamera();
-        }
-        // Move camera if set to follow
-        if (CameraFollow)
-        {
-            Vector3 cameraPos = Camera.main.gameObject.transform.position;
-            cameraPos += (Player.transform.position - Camera.main.gameObject.transform.position) * Time.deltaTime * FOLLOW_SPEED;
-            cameraPos.z = -10;
-            Camera.main.gameObject.transform.position = cameraPos;
-        }
-        
-        // Move bots (TESTING)
-        curr_cooldown += Time.deltaTime*BOT_SPEED;
-        if (curr_cooldown > BOT_COOLDOWN) 
-        {
-            curr_cooldown = 0;
-            testopclass.MoveTowards(end_x,end_y);
+            // Swap camera perspective hotkey
+            if(Input.GetKeyDown(KeyCode.R))
+            {
+                ToggleCamera();
+            }
+            // Move camera if set to follow
+            if (CameraFollow)
+            {
+                Vector3 cameraPos = Camera.main.gameObject.transform.position;
+                cameraPos += (Player.transform.position - Camera.main.gameObject.transform.position) * Time.deltaTime * FOLLOW_SPEED;
+                cameraPos.z = -10;
+                Camera.main.gameObject.transform.position = cameraPos;
+            }
+            
+            // Move bots (TESTING)
+            curr_cooldown += Time.deltaTime*BOT_SPEED;
+            if (curr_cooldown > BOT_COOLDOWN) 
+            {
+                curr_cooldown = 0;
+                if (testopclass.MoveTowards(end_x,end_y)) 
+                {
+                    EndGame(false);
+                }
+            }
         }
     }
 
@@ -214,6 +221,7 @@ public class MazeModule : MonoBehaviour
 
     private void EndGame(bool win)
     {
+        GameEnded = true;
         if(win)
         {
             Debug.Log("test win");
@@ -224,6 +232,7 @@ public class MazeModule : MonoBehaviour
         else
         {
             Debug.Log("test loss");
+            FailWindow.SetActive(true);
         }
     }
 
@@ -540,6 +549,7 @@ public class MazeModule : MonoBehaviour
     private float ZoomOut;
     private float ZOOM_IN = 20;
     private float FOLLOW_SPEED = 2;
+    private bool GameEnded = false;
 
     /************************** ALL CONST/MASKS BELOW **************************/
 
@@ -584,7 +594,7 @@ public class OP {
 
     /************************** ALL FUNCTIONS BELOW **************************/
 
-    public void MoveTowards(int tx, int ty) {
+    public bool MoveTowards(int tx, int ty) {
         bool[,] vis = new bool[MAZE_WIDTH,MAZE_HEIGHT];
         vis[x,y] = true;
         // Find which direction target is in (only 1 dir since tree)
@@ -601,6 +611,11 @@ public class OP {
                 break;
             }
         }
+        if(x == tx && y == ty)
+        {
+            return true;
+        }
+        return false;
     }
 
     private bool DFS(int tx, int ty, int cx, int cy, bool[,] vis) {
