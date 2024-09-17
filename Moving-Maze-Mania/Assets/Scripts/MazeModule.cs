@@ -56,12 +56,8 @@ public class MazeModule : MonoBehaviour
         y = PlayerPrefs.GetInt("Height");
         MAZE_WIDTH = x*2+1;
         MAZE_HEIGHT = y*2+1;
-        
-        // NEED GOOD PLAYER SPAWN (AND MAZE END) ALGO
-        player_x = 1;
-        player_y = 1;
-        // ^^^^^^
-
+        // Sets player x/y and end x/y
+        SetSpawns();
         // Origin for shifts spawns around the middle of the maze
         origin_x = rand.Next(x/4,x*3/4)*2+1;
         origin_y = rand.Next(y/4,y*3/4)*2+1;
@@ -89,9 +85,14 @@ public class MazeModule : MonoBehaviour
             SetCoins();
         }
 
+
+
         // TESTING BOTS        
-        OPObj = Instantiate(OPPrefab,PlayerPos,Quaternion.identity);
+        Vector3 BotPos = new(2.08f,2.08f,0);
+        OPObj = Instantiate(OPPrefab,BotPos,Quaternion.identity);
         testopclass = new OP(MazeFrame,1,1,COIN_0_LOC,OPObj);
+
+
 
         // Init camera as follow
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
@@ -138,7 +139,7 @@ public class MazeModule : MonoBehaviour
         if (curr_cooldown > BOT_COOLDOWN) 
         {
             curr_cooldown = 0;
-            testopclass.MoveTowards(19,19);
+            testopclass.MoveTowards(end_x,end_y);
         }
     }
 
@@ -167,7 +168,7 @@ public class MazeModule : MonoBehaviour
         // Check direction validity (WALL + OOB)
         int nx = player_x+PLAYER_DIR[dir].x;
         int ny = player_y+PLAYER_DIR[dir].y;
-        if(!IsValid(nx,ny) || MazeFrame[nx,ny] == WALL)
+        if(!PIsValid(nx,ny) || MazeFrame[nx,ny] == WALL)
         {
             return false;
         }
@@ -185,12 +186,28 @@ public class MazeModule : MonoBehaviour
             GameObject.Destroy(NPObjects[player_x,player_y]);
             NPObjectData[player_x,player_y] = OBJ_EMPTY;
         }
+        if(player_x == end_x && player_y == end_y)
+        {
+            EndGame(true);
+        }
         // Shift after every move
         for(int c = 0; c < SHIFT_COUNT; ++c)
         {
             Shift();
         }
         return true;
+    }
+
+    private void EndGame(bool win)
+    {
+        if(win)
+        {
+            Debug.Log("test win");
+        }
+        else
+        {
+            Debug.Log("test loss");
+        }
     }
 
     /************************** ALL GAME UTIL BELOW **************************/
@@ -233,6 +250,39 @@ public class MazeModule : MonoBehaviour
     {
         SpriteRenderer CurrentRenderer = Tiles[x,y].GetComponent<SpriteRenderer>();
         CurrentRenderer.sprite = Resources.Load<Sprite>(path);
+    }
+
+    private void SetSpawns()
+    {
+        // end: 0 top, 1 bottom, 2 right, 3 left
+        int r = rand.Next(0,4);
+        switch(r)
+        {
+            case 0:
+                end_x = rand.Next(x/4,x*3/4)*2+1;
+                end_y = MAZE_HEIGHT-1;
+                player_x = rand.Next(0,x)*2+1;
+                player_y = 1;
+                break;
+            case 1:
+                end_x = rand.Next(x/4,x*3/4)*2+1;
+                end_y = 0;
+                player_x = rand.Next(0,x)*2+1;
+                player_y = MAZE_HEIGHT-2;
+                break;
+            case 2:
+                end_x = MAZE_WIDTH-1;
+                end_y = rand.Next(y/4,y*3/4)*2+1;
+                player_x = 1;
+                player_y = rand.Next(0,y)*2+1;
+                break;
+            case 3:
+                end_x = 0;
+                end_y = rand.Next(y/4,y*3/4)*2+1;
+                player_x = MAZE_WIDTH-2;
+                player_y = rand.Next(0,y)*2+1;
+                break;
+        }
     }
 
     /************************** ALL MAZE GEN BELOW **************************/
@@ -343,6 +393,8 @@ public class MazeModule : MonoBehaviour
                 SetRendererSprite(i,j,MazeFrame[i,j] == WALL ? WALL_LOC : FLOOR_LOC);
             }        
         }
+        SetRendererSprite(end_x,end_y,FLOOR_LOC);
+        MazeFrame[end_x,end_y] = EMPTY;
     }
 
     private void SetCoins()
@@ -413,6 +465,14 @@ public class MazeModule : MonoBehaviour
                (y < MAZE_HEIGHT-1);
     }
 
+    private bool PIsValid(int x, int y)
+    {
+        return (x >= 0) && 
+               (y >= 0) &&
+               (x < MAZE_WIDTH) &&
+               (y < MAZE_HEIGHT);
+    }
+
     private Pair GetMid(Pair a, int bx, int by)
     {
         int dx = (a.x-bx)/2;
@@ -442,6 +502,8 @@ public class MazeModule : MonoBehaviour
     private int MAZE_HEIGHT;
     private int origin_x;
     private int origin_y;
+    private int end_x;
+    private int end_y;
     private int player_x;
     private int player_y;
     private int DO_COINS;
@@ -540,10 +602,10 @@ public class OP {
 
     private bool IsValid(int x, int y)
     {
-        return (x > 0) && 
-               (y > 0) &&
-               (x < MAZE_WIDTH-1) &&
-               (y < MAZE_HEIGHT-1);
+        return (x >= 0) && 
+               (y >= 0) &&
+               (x < MAZE_WIDTH) &&
+               (y < MAZE_HEIGHT);
     }
 
     /************************** ALL VARS BELOW **************************/
