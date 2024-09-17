@@ -231,26 +231,14 @@ public class MazeModule : MonoBehaviour
             PlayerPrefs.SetInt("Width",Math.Min(50,x+1));
             PlayerPrefs.SetInt("Height",Math.Min(50,y+1));
             PlayerPrefs.SetInt("CurStreak",streak+1);
-            PlayerPrefs.SetInt("MaxStreak",Math.Max(PlayerPrefs.GetInt("MaxStreak",0),streak+1));
-            
-            Debug.Log($"curstreak: {PlayerPrefs.GetInt("CurStreak")}");
-            Debug.Log($"maxstreak: {PlayerPrefs.GetInt("MaxStreak")}");
-            Debug.Log($"score: {score}");
-            
+            PlayerPrefs.SetInt("MaxStreak",Math.Max(PlayerPrefs.GetInt("MaxStreak",0),streak+1));        
             EndWindow.SetActive(true);
         }
         else
         {
             PlayerPrefs.SetInt("CurStreak",0);
-    
-            Debug.Log($"curstreak: {PlayerPrefs.GetInt("CurStreak")}");
-            Debug.Log($"maxstreak: {PlayerPrefs.GetInt("MaxStreak")}");
-            Debug.Log($"score: {score}");
-
             FailWindow.SetActive(true);
         }
-
-        Debug.Log($"All score: {PlayerPrefs.GetFloat("TotalScore",0)}");
     }
 
     public void ChangeScene() 
