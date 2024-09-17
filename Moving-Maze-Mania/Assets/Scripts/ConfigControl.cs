@@ -39,7 +39,8 @@ public class RunNewGame : MonoBehaviour
         
     }
 
-    public void RunNewGameWithConfig() {
+    public void RunNewGameWithConfig()
+    {
         PlayerPrefs.SetInt("Width",(int)XSlider.value);
         PlayerPrefs.SetInt("Height",(int)YSlider.value);
         PlayerPrefs.SetInt("Shifts",(int)ShiftSlider.value);

@@ -91,9 +91,8 @@ public class MazeModule : MonoBehaviour
 
 
         // TESTING BOTS        
-        Vector3 BotPos = new(2.08f,2.08f,0);
-        OPObj = Instantiate(OPPrefab,BotPos,Quaternion.identity);
-        testopclass = new OP(MazeFrame,1,1,COIN_0_LOC,OPObj);
+        OPObj = Instantiate(OPPrefab,PlayerPos,Quaternion.identity);
+        testopclass = new OP(MazeFrame,player_x,player_y,COIN_0_LOC,OPObj);
 
 
 
@@ -222,23 +221,51 @@ public class MazeModule : MonoBehaviour
     private void EndGame(bool win)
     {
         GameEnded = true;
+        int streak = PlayerPrefs.GetInt("CurStreak",0);
+        // get score and add to total score
+        // pull all default streak/scores with 0
+        int score = CalculateScore(win,streak);
+        PlayerPrefs.SetFloat("TotalScore",PlayerPrefs.GetFloat("TotalScore",0.0f)+score);
         if(win)
         {
-            Debug.Log("test win");
-            PlayerPrefs.SetInt("Width",x+1);
-            PlayerPrefs.SetInt("Height",y+1);
+            PlayerPrefs.SetInt("Width",Math.Min(50,x+1));
+            PlayerPrefs.SetInt("Height",Math.Min(50,y+1));
+            PlayerPrefs.SetInt("CurStreak",streak+1);
+            PlayerPrefs.SetInt("MaxStreak",Math.Max(PlayerPrefs.GetInt("MaxStreak",0),streak+1));
+            
+            Debug.Log($"curstreak: {PlayerPrefs.GetInt("CurStreak")}");
+            Debug.Log($"maxstreak: {PlayerPrefs.GetInt("MaxStreak")}");
+            Debug.Log($"score: {score}");
+            
             EndWindow.SetActive(true);
         }
         else
         {
-            Debug.Log("test loss");
+            PlayerPrefs.SetInt("CurStreak",0);
+    
+            Debug.Log($"curstreak: {PlayerPrefs.GetInt("CurStreak")}");
+            Debug.Log($"maxstreak: {PlayerPrefs.GetInt("MaxStreak")}");
+            Debug.Log($"score: {score}");
+
             FailWindow.SetActive(true);
         }
+
+        Debug.Log($"All score: {PlayerPrefs.GetFloat("TotalScore",0)}");
     }
 
     public void ChangeScene() 
     {
         SceneManager.LoadScene(sceneName: "CurGame");
+    }
+
+    private int CalculateScore(bool win, int streak)
+    {
+        float final = ((MAZE_HEIGHT * MAZE_WIDTH) + (coins_picked * 100.0f)) 
+                    * (win ? 2.5f : 0.25f) 
+                    * (float)Math.Pow(1.05f,streak) 
+                    * (1 + BOT_SPEED/10.0f)
+                    * (1 + SHIFT_COUNT/100.0f);
+        return (int)final;
     }
 
     /************************** ALL GAME UTIL BELOW **************************/

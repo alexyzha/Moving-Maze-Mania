@@ -19,7 +19,28 @@ public class StartGame : MonoBehaviour
         
     }
 
-    public void NewGame() {
+    public void NewGame()
+    {
         SceneManager.LoadScene(sceneName: "NG_Config");
     }
+
+    public void GoToSettings()
+    {
+        SceneManager.LoadScene(sceneName: "Settings");
+    }
+
+    public void GoToWardrobe()
+    {
+        SceneManager.LoadScene(sceneName: "Wardrobe");
+    }
+
+    public void GoToCredits()
+    {
+        SceneManager.LoadScene(sceneName: "Credits");
+    }
+    public void GoToInfo()
+    {
+        SceneManager.LoadScene(sceneName: "Info");
+    }
+
 }

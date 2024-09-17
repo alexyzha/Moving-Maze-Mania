@@ -14,4 +14,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CurGame.unity
     guid: b0cea673fee6647c7aa696da34bef832
+  - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: f15dcee52d73e4351b63f4e9fe22b470
+  - enabled: 1
+    path: Assets/Scenes/Wardrobe.unity
+    guid: 18a6257823ffd43f1b49ee72262a1bfd
+  - enabled: 1
+    path: Assets/Scenes/Credits.unity
+    guid: 5ea96814f5aa64035912d1a57025dc37
   m_configObjects: {}
