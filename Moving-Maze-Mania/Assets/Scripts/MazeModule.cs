@@ -105,23 +105,35 @@ public class MazeModule : MonoBehaviour
 
     void Update()
     {
-        // All player movement controls
-        if(Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            MovePlayer(0);
+            player_cooldown = 0;
         }
-        else if(Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
+
+        //move cooldown
+        player_cooldown -= Time.deltaTime;
+        if (player_cooldown <= 0) 
         {
-            MovePlayer(1);
+            player_cooldown = PLAYER_COOLDOWN;
+            // All player movement controls
+            if(Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))
+            {
+                MovePlayer(0);
+            }
+            else if(Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            {
+                MovePlayer(1);
+            }
+            else if(Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow))
+            {
+                MovePlayer(2);
+            }
+            else if(Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+            {
+                MovePlayer(3);
+            }
         }
-        else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-        {
-            MovePlayer(2);
-        }
-        else if(Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            MovePlayer(3);
-        }
+
         // Swap camera perspective hotkey
         if(Input.GetKeyDown(KeyCode.R))
         {
@@ -519,9 +531,11 @@ public class MazeModule : MonoBehaviour
     private int DO_COINS;
     private int coins_picked;
     private float curr_cooldown = 0.0f;
+    private float player_cooldown = 0.0f;
     private int SHIFT_COUNT;
     private float BOT_SPEED;
     private float BOT_COOLDOWN = 1.0f;
+    private float PLAYER_COOLDOWN = 0.2f;
     private bool CameraFollow = true;
     private int ZOOM_FACTOR = 3;
     private float FOLLOW_SPEED = 2;
