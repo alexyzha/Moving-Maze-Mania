@@ -13,6 +13,7 @@ using UnityEditor;
 using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Pair
 {
@@ -40,6 +41,7 @@ public class MazeModule : MonoBehaviour
     [SerializeField] GameObject DefaultPrefab;
     [SerializeField] GameObject ObjectPrefab;
     [SerializeField] GameObject OPPrefab;
+    [SerializeField] GameObject EndWindow;
     
     /************************** ALL GAME LOOP BELOW **************************/
 
@@ -84,7 +86,7 @@ public class MazeModule : MonoBehaviour
         {
             SetCoins();
         }
-
+        EndWindow.SetActive(false);
 
 
         // TESTING BOTS        
@@ -203,11 +205,19 @@ public class MazeModule : MonoBehaviour
         if(win)
         {
             Debug.Log("test win");
+            PlayerPrefs.SetInt("Width",x+1);
+            PlayerPrefs.SetInt("Height",y+1);
+            EndWindow.SetActive(true);
         }
         else
         {
             Debug.Log("test loss");
         }
+    }
+
+    public void ChangeScene() 
+    {
+        SceneManager.LoadScene(sceneName: "CurGame");
     }
 
     /************************** ALL GAME UTIL BELOW **************************/
