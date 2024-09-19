@@ -246,6 +246,11 @@ public class MazeModule : MonoBehaviour
         SceneManager.LoadScene(sceneName: "CurGame");
     }
 
+    public void QuitToTitle() 
+    {
+        SceneManager.LoadScene(sceneName: "Title");
+    }
+
     private int CalculateScore(bool win, int streak)
     {
         float final = ((MAZE_HEIGHT * MAZE_WIDTH) + (coins_picked * 100.0f)) 
@@ -584,10 +589,14 @@ public class MazeModule : MonoBehaviour
     private static readonly string COIN_0_LOC = "Items/Coin/0";
     private static readonly string WALL_LOC = "Tiles/Wall";
     private static readonly string FLOOR_LOC = "Tiles/Floor";
+    private static readonly string ZOOM_OUT_LOC = "Buttons/ZoomOut";
+    private static readonly string ZOOM_IN_LOC = "Buttons/ZoomIn";
     private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};
     private static readonly Pair[] DIRECTIONS = new Pair[4] {new(0,-2),new(-2,0),new(0,2),new(2,0)};
     private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
     private static readonly Vector3[] VEC_DIR = new Vector3[4] {new(0,2.08f,0),new(-2.08f,0,0),new(0,-2.08f,0),new(2.08f,0,0)};
+
+
 
 }
 
