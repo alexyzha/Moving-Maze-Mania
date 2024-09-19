@@ -50,7 +50,12 @@ public class RunNewGame : MonoBehaviour
         SceneManager.LoadScene(sceneName: "CurGame");
     }
 
-    int Hash(string str)
+    public void GoToTitle()
+    {
+        SceneManager.LoadScene(sceneName: "Title");
+    }
+
+    private int Hash(string str)
     {
         if(str.Length == 0)
         {
