@@ -24,7 +24,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 53846
+  controlID: 4208
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -149,7 +149,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 53847
+  controlID: 4311
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -174,7 +174,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 53848
+  controlID: 4359
 --- !u!114 &5
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -238,9 +238,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: da620000
-      m_LastClickedID: 0
-      m_ExpandedIDs: 7291fcffba91fcff1a92fcff9eb0fcffd8bcfcff8c35fdff7e37fdff1e39fdffe05efdff866cfdff1274fdff5e74fdff4e84fdffdce4fdff128afeffd6f0feff52f2feff9af2feff68d8ffffb2d8fffffed8ffff4ed9ffffa2d9ffffead9ffff32daffff7edaffffc6daffff12dbffff5adbffffaedffffffedfffff8ee1ffff3ae3ffffd0e3ffff96e4ffff58e6ffff80ecffffc2ecffffbcedffffb4eeffffb0efffff14f0ffffb4f0ffff24f1ffffdaf4ffff66f5ffffa6f5ffffe6f5ffff9ef6ffffe8f7fffff8f9ffff1afbfffff862000058630000226400002c64000058650000a2650000c46500007c680000f868000062690000fe690000226a0000c46b0000d06b0000506c0000886c0000a46c0000c66c00003c6d0000466d0000146e0000ce750000f4750000287600005a760000987600000e8f0000a2af0000d0af000034cc0000a0d000009ed50000b8d70000d2d70000e4d70000ecd70000fed700000ceb00001ceb000038eb000040eb0000
+      m_SelectedIDs: 86630000
+      m_LastClickedID: 25478
+      m_ExpandedIDs: 08faffff1afbffff90630000bc630000c4630000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -660,9 +660,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 434.03537, y: 252.80907, z: 1.7363461}
+    m_Target: {x: 443.99652, y: 240.86833, z: -0.12397677}
     speed: 2
-    m_Value: {x: 434.03537, y: 252.80907, z: 1.7363461}
+    m_Value: {x: 443.99652, y: 240.86833, z: -0.12397677}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -712,9 +712,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 322.5785
+    m_Target: 13.263713
     speed: 2
-    m_Value: 322.5785
+    m_Value: 13.263713
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -811,7 +811,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets/Resources/Backgrounds
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -819,15 +819,15 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scenes
+  - Assets/Resources/Backgrounds
   m_LastFoldersGridSize: -1
   m_LastProjectPath: /Users/aly/Desktop/MMM_UNITY/Moving-Maze-Mania
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: c6620000
-    m_LastClickedID: 25286
+    m_SelectedIDs: 50630000
+    m_LastClickedID: 25424
     m_ExpandedIDs: 00000000fc610000fe61000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -881,9 +881,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: da620000
-    m_LastClickedInstanceID: 25306
-    m_HadKeyboardFocusLastEvent: 1
+    m_SelectedInstanceIDs: 86630000
+    m_LastClickedInstanceID: 25478
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000706500009293000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -965,8 +965,8 @@ MonoBehaviour:
     y: 0
     width: 391
     height: 890
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
