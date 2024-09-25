@@ -20,6 +20,23 @@ Wilson's algorithm always generates a perfect maze, or a maze with no loops and 
 
 ### Visualizing mazes as trees:
 
-Mazes can be visualized as trees, or undirected acyclic graphs.
+Mazes can be visualized as trees, or acyclic graphs.
 
-![image](Visuals/MazeToTree.png)
+**Figure 1:**
+
+![image](Visuals/MazeToTreeBig.png)
+
+As shown above in figure 1:
+
+1. You see a simple maze consisting of 9 nodes in a 3x3 pattern. The nodes are colored in with green or red. If there is a path between nodes, there is no maze wall. 
+
+2. The red node is the "root" of the tree, and this was decided arbitrarily. As you can see from the image above, if you replace open paths between nodes in a maze with edges, you'll end up with a tree.
+
+3. The tree representation of the maze is unfolded, and here you can see a more typical drawing of a tree.
+
+The current tree visualization is undirected, meaning that the edges of the tree only go one way. We can also visualize the trees derived from these mazes as directed, as shown below:
+
+**Figure 2:**
+
+![image](Visuals/DirectedTree.png)
+
