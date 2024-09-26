@@ -109,6 +109,6 @@ Key:
 - `U` = up parent bit (+y)
 - `D` = down parent bit (-y)
 
-**\*\* `L`, `R`, `U`, and `D` may not be the same in the code, this is just for demonstration purposes, showing the the least significant 4 bits of the byte are used for parent directions.
+**\*\* `L`, `R`, `U`, and `D` may not be the same in the code, this is just for demonstration purposes, showing the the least significant 4 bits of the byte are used for parent directions.**
 
 Using a bitmask, we end up with a lightweight maze data storage system. The overall space is O(`x`\*`y`), and any operations regarding parents is just as efficient (if not more efficient) than if you were to use a traditional 3D array. 2D and 3D arrays are also definitely more efficient than instantiating `x`*`y` node structs and working with those.
