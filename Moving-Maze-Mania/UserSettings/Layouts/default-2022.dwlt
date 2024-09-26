@@ -19,7 +19,7 @@ MonoBehaviour:
     width: 1680
     height: 940
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: Inspector
   m_RootView: {fileID: 2}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -119,7 +119,7 @@ MonoBehaviour:
   m_MinSize: {x: 300, y: 100}
   m_MaxSize: {x: 24288, y: 16192}
   vertical: 0
-  controlID: 4608
+  controlID: 16
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -144,7 +144,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 100}
   m_MaxSize: {x: 16192, y: 16192}
   vertical: 1
-  controlID: 4609
+  controlID: 17
 --- !u!114 &7
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 4610
+  controlID: 18
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -189,8 +189,8 @@ MonoBehaviour:
     y: 0
     width: 318.5
     height: 528.5
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
@@ -413,9 +413,9 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: 66630000
+      m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: cc19ffff161affff621affffaa1affff021bffff6c1bffffb61bffff0c1cffff5a1cffffa21cffffec1cffff381dffff801dffffc81dffff101effff3c28ffff8c28ffffd428ffff1c29ffff6429ffffb029ffffcc2cffff08faffff1afbffff90630000bc630000c46300000a7700005c7a0000
+      m_ExpandedIDs: 1afbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -808,9 +808,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 578.093, y: 317.14883, z: -3.5040073}
+    m_Target: {x: 573.12683, y: 287.00528, z: -4.6162014}
     speed: 2
-    m_Value: {x: 575.7674, y: 316.08066, z: -3.483057}
+    m_Value: {x: 573.432, y: 288.8577, z: -4.5478535}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -860,9 +860,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 351.26715
+    m_Target: 462.48657
     speed: 2
-    m_Value: 349.17212
+    m_Value: 455.6518
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -932,7 +932,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scenes
+    - Assets
     m_Globs: []
     m_OriginalText: 
     m_ImportLogFlags: 0
@@ -940,16 +940,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 64
   m_LastFolders:
-  - Assets/Scenes
+  - Assets
   m_LastFoldersGridSize: -1
-  m_LastProjectPath: /Users/aly/Desktop/MMM_UNITY/Moving-Maze-Mania
+  m_LastProjectPath: /Users/aly/Desktop/all_code_projects/moving-maze-mania/Moving-Maze-Mania
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 5e630000
-    m_LastClickedID: 25438
-    m_ExpandedIDs: 00000000fc610000fe61000062630000586d000000ca9a3b
+    m_SelectedIDs: 4a620000
+    m_LastClickedID: 25162
+    m_ExpandedIDs: 000000004a6200004c62000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -977,7 +977,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000fc610000fe61000000ca9a3b
+    m_ExpandedIDs: 000000004a6200004c620000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1004,7 +1004,7 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
+    m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: c6230000706500009293000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
