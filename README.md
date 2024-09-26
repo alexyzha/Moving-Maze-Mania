@@ -83,3 +83,32 @@ The maze is once again visualized as a weirdly folded tree. You can see under (9
 It is also possible for the maze layout to not change at all after a shift. As shown in figure 5, shifting does not change the maze layout, but it does change the internal tree representation of the maze.
 
 One thing to remember is that the root can only be shifted to nodes directly adjacent to the current root in the maze representation of the tree. This is because paths in a maze can only reach adjacent tiles; you can't jump over tiles in a maze.
+
+## Solution for numeric maze representation
+
+A 2D maze requires at least O(`x`\*`y`) space, where `x` is the width and `y` is the height of the maze. We need to track a few things:
+
+1. The parents of the tile
+2. Whether or not the tile is a wall
+3. If there is an object on the tile (not super important, but useful for the game)
+
+You could have a 3D array with dimensions `x`, `y`, and `4 + 1 + 1` (4 potential parents, wall bool, object bool), but why would you do that when you can bitmask? Using a bitmask, you can store up to 8 bools in a single byte. It's enough for what we need.
+
+**Figure 6:**
+
+![image](Visuals/BitwiseRep.png)
+
+Key:
+
+- `W` = wall bit
+- `O` = object bit
+- `0` = temp (used during maze instantiation and shifts)
+- `0` = temp (used during maze instantiation and shifts)
+- `L` = left parent bit (-x)
+- `R` = right parent bit (+x)
+- `U` = up parent bit (+y)
+- `D` = down parent bit (-y)
+
+**\*\* `L`, `R`, `U`, and `D` may not be the same in the code, this is just for demonstration purposes, showing the the least significant 4 bits of the byte are used for parent directions.
+
+Using a bitmask, we end up with a lightweight maze data storage system. The overall space is O(`x`\*`y`), and any operations regarding parents is just as efficient (if not more efficient) than if you were to use a traditional 3D array. 2D and 3D arrays are also definitely more efficient than instantiating `x`*`y` node structs and working with those.
