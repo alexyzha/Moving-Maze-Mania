@@ -808,9 +808,9 @@ MonoBehaviour:
   m_PlayAudio: 0
   m_AudioPlay: 0
   m_Position:
-    m_Target: {x: 573.12683, y: 287.00528, z: -4.6162014}
+    m_Target: {x: 580.04724, y: 285.32315, z: -4.7249203}
     speed: 2
-    m_Value: {x: 573.432, y: 288.8577, z: -4.5478535}
+    m_Value: {x: 579.8214, y: 285.37805, z: -4.7213726}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -860,9 +860,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 462.48657
+    m_Target: 473.35852
     speed: 2
-    m_Value: 455.6518
+    m_Value: 473.00375
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -942,7 +942,7 @@ MonoBehaviour:
   m_LastFolders:
   - Assets
   m_LastFoldersGridSize: -1
-  m_LastProjectPath: /Users/aly/Desktop/all_code_projects/moving-maze-mania/Moving-Maze-Mania
+  m_LastProjectPath: /Users/aly/Desktop/all-code-projects/moving-maze-mania/Moving-Maze-Mania
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
