@@ -78,7 +78,7 @@ The maze is once again visualized as a weirdly folded tree. You can see under (9
 
 **Figure 5:**
 
-![image](Visualize/BenignShift.png)
+![image](Visuals/BenignShift.png)
 
 It is also possible for the maze layout to not change at all after a shift. As shown in figure 5, shifting does not change the maze layout, but it does change the internal tree representation of the maze.
 
