@@ -92,7 +92,7 @@ A 2D maze requires at least O(`x`\*`y`) space, where `x` is the width and `y` is
 2. Whether or not the tile is a wall
 3. If there is an object on the tile (not super important, but useful for the game)
 
-You could have a 3D array with dimensions `x`, `y`, and `4 + 1 + 1` (4 potential parents, wall bool, object bool), but why would you do that when you can bitmask? Using a bitmask, you can store up to 8 bools in a single byte. It's enough for what we need.
+You could have a 3D array with dimensions `x`, `y`, and `4 + 1 + 1` (4 potential parents, wall bool, object bool), but why would you do that when you can [bitmask](https://www.geeksforgeeks.org/what-is-bitmasking/)? Using a bitmask, you can store up to 8 bools in a single byte. It's enough for what we need.
 
 **Figure 6:**
 
