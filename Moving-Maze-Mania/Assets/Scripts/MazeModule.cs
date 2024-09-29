@@ -14,6 +14,7 @@ using UnityEditor.U2D.Animation;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Pair
 {
@@ -43,6 +44,8 @@ public class MazeModule : MonoBehaviour
     [SerializeField] GameObject OPPrefab;
     [SerializeField] GameObject EndWindow;
     [SerializeField] GameObject FailWindow;
+    [SerializeField] TMP_Text WinText;
+    [SerializeField] TMP_Text LostText;
     
     /************************** ALL GAME LOOP BELOW **************************/
 
@@ -82,20 +85,18 @@ public class MazeModule : MonoBehaviour
         // Spawn player sprite
         Vector3 PlayerPos = new(player_x*2.08f,player_y*2.08f,0);
         Player = Instantiate(ObjectPrefab,PlayerPos,Quaternion.identity);
+        SpriteRenderer PlayerRenderer = Player.GetComponent<SpriteRenderer>();
+        PlayerRenderer.sprite = Resources.Load<Sprite>(PLAYER_SKIN_BASE+PlayerPrefs.GetInt("PlayerIcon",5).ToString());
         // If coins are allowed, set coins
         if(DO_COINS > 0)
         {
             SetCoins();
         }
         EndWindow.SetActive(false);
-
-
-        // TESTING BOTS        
+        // EXPAND IN FUTURE? PROLLY NOT
+        // SINGLE BOT  
         OPObj = Instantiate(OPPrefab,PlayerPos,Quaternion.identity);
-        testopclass = new OP(MazeFrame,player_x,player_y,COIN_0_LOC,OPObj);
-
-
-
+        testopclass = new OP(MazeFrame,player_x,player_y,BOT_SKIN_BASE+PlayerPrefs.GetInt("PlayerIcon",5).ToString(),OPObj);
         // Init camera as follow
         Vector3 CameraPosition = new(MAZE_WIDTH*2.08f/2-1.04f,MAZE_HEIGHT*2.08f/2-1.04f,-10);
         Camera.main.gameObject.transform.position = CameraPosition;
@@ -233,11 +234,13 @@ public class MazeModule : MonoBehaviour
             PlayerPrefs.SetInt("CurStreak",streak+1);
             PlayerPrefs.SetInt("MaxStreak",Math.Max(PlayerPrefs.GetInt("MaxStreak",0),streak+1));        
             EndWindow.SetActive(true);
+            WinText.text = $"Score: {score}";
         }
         else
         {
             PlayerPrefs.SetInt("CurStreak",0);
             FailWindow.SetActive(true);
+            LostText.text = $"Score: {score}";
         }
     }
 
@@ -591,6 +594,8 @@ public class MazeModule : MonoBehaviour
     private static readonly string FLOOR_LOC = "Tiles/Floor";
     private static readonly string ZOOM_OUT_LOC = "Buttons/ZoomOut";
     private static readonly string ZOOM_IN_LOC = "Buttons/ZoomIn";
+    private static readonly string BOT_SKIN_BASE = "Bot/";
+    private static readonly string PLAYER_SKIN_BASE = "Player/";
     private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};
     private static readonly Pair[] DIRECTIONS = new Pair[4] {new(0,-2),new(-2,0),new(0,2),new(2,0)};
     private static readonly Pair[] PLAYER_DIR =  new Pair[4] {new(0,1),new(-1,0),new(0,-1),new(1,0)};
@@ -613,6 +618,8 @@ public class OP {
         SKIN = skin;
         MazeFrame[x,y] |= OBJECT;
         Vector3 SpawnPos = new(x*2.08f,y*2.08f,0);
+        SpriteRenderer CurrentRenderer = OP.GetComponent<SpriteRenderer>();
+        CurrentRenderer.sprite = Resources.Load<Sprite>(skin);
         OPObject = OP;
     }
 
