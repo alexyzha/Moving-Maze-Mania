@@ -73,6 +73,12 @@ public class MazeModule : MonoBehaviour
         SHIFT_COUNT = PlayerPrefs.GetInt("Shifts");
         // Get bot speed
         BOT_SPEED = PlayerPrefs.GetFloat("BotSpeed");
+        // Set wall/floor sprite locations
+        WALL_LOC = WALL_BASE + PlayerPrefs.GetInt("WallIcon",0).ToString();
+        FLOOR_LOC = FLOOR_BASE + PlayerPrefs.GetInt("FloorIcon",0).ToString();
+        // Set camera zoom and follow speeds
+        ZOOM_IN = 400/PlayerPrefs.GetFloat("CamZoom",20);
+        FOLLOW_SPEED = PlayerPrefs.GetFloat("CamFollow",2);
         // Init all matricies
         MazeFrame = new byte[MAZE_WIDTH,MAZE_HEIGHT];
         Tiles = new GameObject[MAZE_WIDTH,MAZE_HEIGHT];
@@ -566,12 +572,12 @@ public class MazeModule : MonoBehaviour
     private float player_cooldown = 0.0f;
     private int SHIFT_COUNT;
     private float BOT_SPEED;
-    private float BOT_COOLDOWN = 1.0f;
-    private float PLAYER_COOLDOWN = 0.2f;
+    private readonly float BOT_COOLDOWN = 1.0f;
+    private readonly float PLAYER_COOLDOWN = 0.2f;
     private bool CameraFollow = true;
     private float ZoomOut;
-    private float ZOOM_IN = 20;
-    private float FOLLOW_SPEED = 2;
+    private float ZOOM_IN;
+    private float FOLLOW_SPEED;
     private bool GameEnded = false;
 
     /************************** ALL CONST/MASKS BELOW **************************/
@@ -590,10 +596,10 @@ public class MazeModule : MonoBehaviour
     private const char IS_COIN = (char)0x0001;
     private const char OBJ_EMPTY = (char)0x0000;
     private static readonly string COIN_0_LOC = "Items/Coin/0";
-    private static readonly string WALL_LOC = "Tiles/Wall";
-    private static readonly string FLOOR_LOC = "Tiles/Floor";
-    private static readonly string ZOOM_OUT_LOC = "Buttons/ZoomOut";
-    private static readonly string ZOOM_IN_LOC = "Buttons/ZoomIn";
+    private static readonly string WALL_BASE = "Tiles/Wall/";
+    private static readonly string FLOOR_BASE = "Tiles/Floor/";
+    string WALL_LOC;
+    string FLOOR_LOC;
     private static readonly string BOT_SKIN_BASE = "Bot/";
     private static readonly string PLAYER_SKIN_BASE = "Player/";
     private static readonly byte[] DIR_MASK = new byte[4] {NEG_Y,NEG_X,POS_Y,POS_X};

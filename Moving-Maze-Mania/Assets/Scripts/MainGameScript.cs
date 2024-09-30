@@ -8,6 +8,7 @@ public class MainGameScript : MonoBehaviour
 {
     /* FIELDS */
     [SerializeField] GameObject BKG;
+    [SerializeField] Button CameraButton;
 
     // Start is called before the first frame update
     void Start()
@@ -23,5 +24,15 @@ public class MainGameScript : MonoBehaviour
         
     }
 
+    public void SwitchCamIcon()
+    {
+        Image cur_img = CameraButton.GetComponent<Image>();
+        cur_img.sprite = Resources.Load<Sprite>(ZOOMED_IN ? ZOOM_IN_LOC : ZOOM_OUT_LOC);
+        ZOOMED_IN = !ZOOMED_IN;
+    }   
+
+    private bool ZOOMED_IN = true;
     private static readonly string BKG_BASE = "GameBkg/";
+    private static readonly string ZOOM_OUT_LOC = "Buttons/ZoomOut";
+    private static readonly string ZOOM_IN_LOC = "Buttons/ZoomIn";
 }
