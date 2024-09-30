@@ -1,0 +1,2 @@
+1. Make coins animated
+2. Add more sprites maybe
